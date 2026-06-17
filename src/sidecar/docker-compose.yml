@@ -1,0 +1,13 @@
+services:
+  vgaol-sidecar:
+    image: vgaol-sidecar:latest
+    container_name: vgaol-${PROJECT_NAME:?error}-sidecar
+    cap_add:
+      - NET_ADMIN
+    dns:
+      - 127.0.0.1
+    volumes:
+      # Anchored securely to the user's host project root directory
+      - ${VGAOL_DIR:?error}/logs:/var/log/ulog
+      - ${VGAOL_DIR:?error}/config:/etc/vgaol_persistent
+    restart: unless-stopped

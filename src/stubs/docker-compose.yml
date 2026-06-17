@@ -1,0 +1,14 @@
+services:
+  target-app:
+    build:
+      context: ${VGAOL_DIR:?error}/..
+      dockerfile: ${VGAOL_DIR:?error}/Dockerfile.app
+    container_name: vgaol-${PROJECT_NAME:?error}-target-app
+    network_mode: "container:vgaol-${PROJECT_NAME:?error}-sidecar"
+    volumes:
+      - ${VGAOL_DIR:?error}/..:/app/
+    depends_on:
+      - vgaol-sidecar
+    stdin_open: true
+    tty: true
+    restart: unless-stopped

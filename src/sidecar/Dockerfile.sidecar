@@ -1,0 +1,47 @@
+# ==============================================================================
+# V-Gaol Network Sidecar - Guardian & Auditor (100% Self-Contained)
+# ==============================================================================
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install essential networking, packet filtering, auditing, and log rotation utilities
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    iptables \
+    ipset \
+    dnsmasq \
+    iproute2 \
+    net-tools \
+    conntrack \
+    curl \
+    tcpdump \
+    dnsutils \
+    ulogd2 \
+    logrotate \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /vgaol
+
+# Create workspace folders for configuration management
+RUN mkdir -p /etc/dnsmasq.d /etc/vgaol_persistent /usr/local/share/vgaol /var/log/ulog /etc/logrotate.d
+
+# Copy dedicated shared libraries from build context (src/)
+COPY ./lib/validation_functions.sh      /usr/local/share/vgaol/validation_functions.sh
+COPY ./lib/log_functions.sh             /usr/local/share/vgaol/log_functions.sh
+COPY ./sidecar/load_dnsmasq_config.sh   /usr/local/share/vgaol/load_dnsmasq_config.sh
+COPY ./sidecar/restart_dnsmasq.sh       /usr/local/share/vgaol/restart_dnsmasq.sh
+
+# Copy and setup entrypoint script
+COPY ./sidecar/entrypoint.sh            /usr/local/bin/vgaol-entrypoint.sh
+
+# Fix script executable permissions
+RUN chmod +x /usr/local/bin/vgaol-entrypoint.sh \
+             /usr/local/share/vgaol/validation_functions.sh \
+             /usr/local/share/vgaol/log_functions.sh \
+             /usr/local/share/vgaol/load_dnsmasq_config.sh \
+             /usr/local/share/vgaol/restart_dnsmasq.sh
+
+ENTRYPOINT ["/usr/local/bin/vgaol-entrypoint.sh"]
+
+# CMD keeps the container alive smoothly
+CMD ["sleep", "infinity"]
