@@ -16,6 +16,13 @@ Then run:
 bash ./src/scripts/install.sh
 ```
 
+### Build the sidecar image
+Sometimes you just want to build or rebuild the vgaol sidecar. You can run:
+```sh
+# cd to vgaol root directory
+VGAOL_ROOT_PATH=$PWD/src bash ./src/lib/build.sh
+```
+
 ## Uninstall
 
 To uninstall, run:
