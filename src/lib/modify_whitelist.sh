@@ -19,7 +19,7 @@ cmd_modify_whitelist() {
         log_err "Sidecar container ($sidecar_container) is not currently running. Start it with 'vgaol up'."
     fi
 
-    local volume_path="/etc/vgaol_persistent"
+    local config_file="/etc/vgaol/vgaol.conf"
 
     local changed=0
     local domains_changed=0
@@ -28,21 +28,19 @@ cmd_modify_whitelist() {
         if validate_ip "$target"; then
             changed=1
 
-            local ip_file="$volume_path/vgaol-ips.txt"
-
             if [[ "$action" == "add" ]]; then
                 log_info "Injecting explicit static IP into active kernel set: $target"
                 # Add directly to the running case-sensitive netfilter memory set
                 docker exec "$sidecar_container" ipset add VGAOL_WHITELIST "$target" timeout 0 -exist 2>/dev/null || true
                 # Commit to persistent file store for cluster re-hydrations
-                docker exec "$sidecar_container" sh -c "grep -qFx '$target' $ip_file || echo '$target' >> $ip_file"
+                docker exec "$sidecar_container" sh -c "grep -qFx '$target' $config_file || echo '$target' >> $config_file"
 
             elif [[ "$action" == "remove" ]]; then
                 log_info "Removing explicit static IP from active kernel set: $target"
                 # Revoke access immediately from live network memory maps
                 docker exec "$sidecar_container" ipset del VGAOL_WHITELIST "$target" 2>/dev/null || true
                 # Strip clean matching elements out of persistence records
-                docker exec "$sidecar_container" sh -c "sed -i '/^$target\$/d' $ip_file"
+                docker exec "$sidecar_container" sh -c "sed -i '/^$target\$/d' $config_file"
             fi
 
         elif validate_domain "$target"; then
@@ -50,17 +48,15 @@ cmd_modify_whitelist() {
             domains_changed=1
 
             # Target the central plain-text domain tracker database updated in your entrypoint workflow
-            local domain_file="$volume_path/vgaol-domains.txt"
-
             if [[ "$action" == "add" ]]; then
                 log_info "Registering domain tracker to persistent index: '$target'"
                 # Append raw domain string to text cache file if not already tracked
-                docker exec "$sidecar_container" sh -c "grep -qFx '$target' $domain_file || echo '$target' >> $domain_file"
+                docker exec "$sidecar_container" sh -c "grep -qFx '$target' $config_file || echo '$target' >> $config_file"
 
             elif [[ "$action" == "remove" ]]; then
                 log_info "Deregistering domain tracker from persistent index: '$target'"
                 # Delete exact line matching domain context safely
-                docker exec "$sidecar_container" sh -c "sed -i '/^$target\$/d' $domain_file"
+                docker exec "$sidecar_container" sh -c "sed -i '/^$target\$/d' $config_file"
             fi
 
         else
@@ -72,7 +68,7 @@ cmd_modify_whitelist() {
         # Since dnsmasq compiles rules out of the text storage asset at boot, we need to rebuild
         # vgaol-domains.conf dynamically when a rule shifts before reloading the process daemon.
         log_info "Regenerating active resolver configuration map boundaries..."
-        docker exec "$sidecar_container" sh -c "/usr/local/share/vgaol/load_dnsmasq_config.sh $domain_file /etc/dnsmasq.d/vgaol-domains.conf"
+        docker exec "$sidecar_container" sh -c "/usr/local/share/vgaol/load_dnsmasq_config.sh $config_file /etc/dnsmasq.d/vgaol-domains.conf"
         log_info "Flushing DNS interception engine daemon configurations..."
         docker exec "$sidecar_container" sh -c "/usr/local/share/vgaol/restart_dnsmasq.sh 0"
     fi

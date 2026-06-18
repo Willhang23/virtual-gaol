@@ -16,12 +16,12 @@ cmd_init() {
     cp "$STUBS_DIR/docker-compose.yml" "$VGAOL_DIR/"
     cp "$STUBS_DIR/.env.example" "$VGAOL_DIR/.env"
     
-    mkdir -p "$VGAOL_DIR/config"
     mkdir -p "$VGAOL_DIR/logs"
+    touch "$VGAOL_DIR/logs/vgaol.log"
 
     # Initialize raw configuration caches for our validation loops
-    touch "$VGAOL_DIR/config/vgaol-domains.txt"
-    touch "$VGAOL_DIR/config/vgaol-ips.txt"
+    mkdir -p "$VGAOL_DIR/etc"
+    touch "$VGAOL_DIR/etc/vgaol.conf"
 
     log_succ "Workspace successfully initialized for this repository under context: '$PROJECT_NAME'."
     # ==============================================================================
@@ -54,9 +54,7 @@ cmd_init_help() {
     echo "    ├── Dockerfile.app           Target hardened application container profile"
     echo "    ├── docker-compose.yml       Orchestration layout running your network defenses"
     echo "    ├── .env                     Local environment configuration variables"
-    echo "    ├── config/"
-    echo "    │   ├── vgaol-domains.txt    Active firewall network domain whitelist database"
-    echo "    │   └── vgaol-ips.txt        Active firewall network IP address database"
+    echo "    ├── etc/vgaol.conf           Active firewall network database"
     echo "    └── logs/                    Standard output directory for isolation audit streams"
     echo ""
 }

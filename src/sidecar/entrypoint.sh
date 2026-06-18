@@ -102,10 +102,10 @@ iptables -A INPUT -j VGAOL_AUDIT_DROP
 log_succ "[V-Gaol Firewall] Policies applied successfully."
 
 log_info "[V-Gaol Sidecar] Mounting persistent storage files..."
-PERSIST_DIR="/etc/vgaol_persistent"
+PERSIST_DIR="/etc/vgaol"
+PERSIST_FILE="$PERSIST_DIR/vgaol.conf"
 mkdir -p "$PERSIST_DIR"
-touch "$PERSIST_DIR/vgaol-domains.txt"
-touch "$PERSIST_DIR/vgaol-ips.txt"
+touch "$PERSIST_FILE"
 
 # Ensure target configuration file path is fresh and clean
 TARGET_DOMAINS_CONF="/etc/dnsmasq.d/vgaol-domains.conf"
@@ -116,12 +116,12 @@ touch "$TARGET_DOMAINS_CONF"
 # 100% Persistence Rule Loader Engine - Domains (dnsmasq)
 # ==============================================================================
 log_info "[V-Gaol Sidecar] Validating and compiling domains from host cache..."
-/usr/local/share/vgaol/load_dnsmasq_config.sh "$PERSIST_DIR/vgaol-domains.txt" "$TARGET_DOMAINS_CONF"
+/usr/local/share/vgaol/load_dnsmasq_config.sh "$PERSIST_FILE" "$TARGET_DOMAINS_CONF"
 
 # ==============================================================================
 # 100% Persistence Rule Loader Engine - IPs (ipset)
 # ==============================================================================
-if [ -f "$PERSIST_DIR/vgaol-ips.txt" ]; then
+if [ -f "$PERSIST_FILE" ]; then
     log_info "[V-Gaol Sidecar] Re-hydrating static IPs from host cache..."
 
     while IFS= read -r raw_line || [ -n "$raw_line" ]; do
@@ -135,11 +135,9 @@ if [ -f "$PERSIST_DIR/vgaol-ips.txt" ]; then
         if validate_ip "$ip"; then
             log_info "[V-Gaol Sidecar] Restoring valid static IP rule: $ip"
             ipset add VGAOL_WHITELIST "$ip" timeout 0 -exist || log_warn "[V-Gaol Sidecar] Failed to sync address to kernel: $ip"
-        else
-            log_warn "[V-Gaol Sidecar] Dropped malformed or invalid IP record: '$ip'"
         fi
 
-    done < "$PERSIST_DIR/vgaol-ips.txt"
+    done < "$PERSIST_FILE"
 fi
 
 echo "server=1.1.1.1" >> /etc/dnsmasq.conf
