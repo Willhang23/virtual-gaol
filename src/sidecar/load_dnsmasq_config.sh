@@ -23,8 +23,6 @@ if [ -f "$1" ]; then
             log_info "[V-Gaol Sidecar] Whitelisting valid domain: $domain"
             echo "server=/$domain/#" >> "$2"
             echo "ipset=/$domain/VGAOL_WHITELIST" >> "$2"
-        else
-            log_warn "[V-Gaol Sidecar] Dropped malformed or invalid domain record: '$domain'"
         fi
 
     done < "$1"

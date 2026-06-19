@@ -14,13 +14,8 @@ cmd_exec() {
 
     local target_service="$1"
 
-    # 🔍 Extract all valid services registered under the current active compose context
     local valid_services
-    valid_services=$(docker compose \
-        --project-directory "$PROJECT_ROOT" \
-        -f "$BASE_COMPOSE" \
-        -f "$USER_COMPOSE" \
-        config --services 2>/dev/null)
+    valid_services=$(cmd_raw config --services 2>/dev/null)
 
     # Validate whether the provided argument matches any of the registered services
     if ! echo "$valid_services" | grep -Fqx "$target_service"; then
@@ -38,11 +33,7 @@ cmd_exec() {
     log_info "Executing runtime command inside container space: [$target_service]..."
 
     # Pass control, leading options, and commands smoothly to the verified service container
-    docker compose \
-        --project-directory "$PROJECT_ROOT" \
-        -f "$BASE_COMPOSE" \
-        -f "$USER_COMPOSE" \
-        exec "$target_service" "$@"
+    cmd_raw exec "$target_service" "$@"
 }
 
 cmd_exec_help() {

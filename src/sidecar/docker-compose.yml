@@ -1,6 +1,7 @@
 services:
   vgaol-sidecar:
     image: vgaol-sidecar:latest
+    pull_policy: never
     container_name: vgaol-${PROJECT_NAME:?error}-sidecar
     cap_add:
       - NET_ADMIN
@@ -9,5 +10,5 @@ services:
     volumes:
       # Anchored securely to the user's host project root directory
       - ${VGAOL_DIR:?error}/logs:/var/log/ulog
-      - ${VGAOL_DIR:?error}/config:/etc/vgaol_persistent
+      - ${VGAOL_DIR:?error}/etc:/etc/vgaol
     restart: unless-stopped

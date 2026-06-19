@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /vgaol
 
 # Create workspace folders for configuration management
-RUN mkdir -p /etc/dnsmasq.d /etc/vgaol_persistent /usr/local/share/vgaol /var/log/ulog /etc/logrotate.d
+RUN mkdir -p /etc/dnsmasq.d /etc/vgaol /usr/local/share/vgaol /var/log/ulog /etc/logrotate.d
 
 # Copy dedicated shared libraries from build context (src/)
 COPY ./lib/validation_functions.sh      /usr/local/share/vgaol/validation_functions.sh

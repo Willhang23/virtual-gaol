@@ -14,11 +14,7 @@ cmd_down() {
     log_info "Tearing down networking stack and flushing live memory configurations..."
 
     # Drop multi-file compose targets cleanly anchored to the host workspace root
-    docker compose \
-        --project-directory "$PROJECT_ROOT" \
-        -f "$BASE_COMPOSE" \
-        -f "$USER_COMPOSE" \
-        down
+    cmd_raw down
 
     log_succ "V-Gaol networking stack dropped."
 }

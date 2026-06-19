@@ -17,13 +17,13 @@ VGAOL_DIR="${VGAOL_DIR:-$PROJECT_ROOT/vgaol}"
 . "$SRC_ROOT/lib/log_functions.sh"
 . "$SRC_ROOT/lib/validation_functions.sh"
 . "$SRC_ROOT/lib/utility.sh"
+. "$SRC_ROOT/lib/raw.sh"
+. "$SRC_ROOT/lib/exec.sh"
 . "$SRC_ROOT/lib/init.sh"
 . "$SRC_ROOT/lib/up.sh"
 . "$SRC_ROOT/lib/down.sh"
-. "$SRC_ROOT/lib/exec.sh"
 . "$SRC_ROOT/lib/modify_whitelist.sh"
 . "$SRC_ROOT/lib/logs.sh"
-. "$SRC_ROOT/lib/raw.sh"
 
 # ==============================================================================
 # SUBCOMMANDS IMPLEMENTATION
@@ -72,8 +72,8 @@ case "$1" in
     down)   cmd_down ;;
     exec)   shift; cmd_exec "$@" ;;
     raw)    shift; cmd_raw "$@" ;;
-    allow)    shift; cmd_modify_whitelist "add" "$@" ;;
-    deny) shift; cmd_modify_whitelist "remove" "$@" ;;
+    allow)  shift; cmd_modify_whitelist "add" "$@" ;;
+    deny)   shift; cmd_modify_whitelist "remove" "$@" ;;
     logs)   cmd_logs ;;
     grep)   shift; cmd_grep "$@" ;;
     help|*) cmd_help ;;
