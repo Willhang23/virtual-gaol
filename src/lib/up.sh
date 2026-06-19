@@ -14,11 +14,7 @@ cmd_up() {
     log_info "Synchronizing network configurations and initializing containers..."
 
     # Drive multi-file compose alignment securely anchored to the host workspace root
-    docker compose \
-        --project-directory "$PROJECT_ROOT" \
-        -f "$BASE_COMPOSE" \
-        -f "$USER_COMPOSE" \
-        up -d --build
+    cmd_raw up -d --build
 
     log_succ "V-Gaol networking stack is live."
 }

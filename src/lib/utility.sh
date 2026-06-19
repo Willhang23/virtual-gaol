@@ -4,6 +4,11 @@
 # ==============================================================================
 
 ensure_workspace() {
+    # GUARD GATE: Return immediately if this environment has already been hydrated
+    if [ "${__VGAOL_WORKSPACE_HYDRATED:-0}" -eq 1 ]; then
+        return 0
+    fi
+
     # Ensure SRC_ROOT cannot be overridden maliciously
     local TRUE_SRC_ROOT="$SRC_ROOT"
 
@@ -34,4 +39,7 @@ ensure_workspace() {
     if [ ! -f "$USER_COMPOSE" ]; then
         log_err "Target application compose configuration missing at: $USER_COMPOSE"
     fi
+
+    # Lock the gate so subsequent nested executions exit cleanly right away
+    export __VGAOL_WORKSPACE_HYDRATED=1
 }
